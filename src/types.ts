@@ -5,6 +5,14 @@ export interface LocalTrack {
   url: string // Path to file inside public, e.g. '/music/Always.mp3'
   duration: number // in seconds
   thumbnailUrl?: string
+  filename?: string
+  format?: string
+}
+
+export interface PlaylistManifest {
+  generatedAt: string
+  totalTracks: number
+  tracks: LocalTrack[]
 }
 
 // Backwards-compatibility alias

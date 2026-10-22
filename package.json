@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "scan-music": "node scripts/scanMusic.js",
+    "build": "node scripts/scanMusic.js && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
     "lucide-react": "^1.16.0",
+    "music-metadata": "^12.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

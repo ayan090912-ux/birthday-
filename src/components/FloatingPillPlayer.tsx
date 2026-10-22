@@ -11,16 +11,16 @@ import {
   Music,
   X,
   Search,
-  CheckCircle2,
-  AlertCircle
+  Sparkles
 } from 'lucide-react'
-import { PlaylistInfo, LocalTrack } from '../types'
+import { PlaylistInfo, LocalTrack, PlaylistManifest } from '../types'
 
 interface FloatingPillPlayerProps {
   playlist: PlaylistInfo
 }
 
 export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist }) => {
+  const [tracks, setTracks] = useState<LocalTrack[]>(playlist.tracks)
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(false)
@@ -38,10 +38,12 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const isSeekingRef = useRef<boolean>(false)
+  const activeTrackRef = useRef<LocalTrack | null>(null)
 
-  const activeTrack: LocalTrack = playlist.tracks[currentTrackIndex] || playlist.tracks[0]
+  const activeTrack: LocalTrack = tracks[currentTrackIndex] || tracks[0] || playlist.tracks[0]
+  activeTrackRef.current = activeTrack
 
-  // Synchronize audio volume and muted state
+  // 1. Synchronize audio volume and muted state
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume
@@ -49,13 +51,75 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
     }
   }, [volume, isMuted])
 
-  // When track changes and user has already started playing, play new track
+  // 2. Dynamic file-discovery & live automatic playlist updates
+  useEffect(() => {
+    let isMounted = true
+
+    const loadManifest = async (showNotice: boolean = false) => {
+      try {
+        const res = await fetch(`/music-manifest.json?t=${Date.now()}`)
+        if (res.ok) {
+          const data: PlaylistManifest = await res.json()
+          if (isMounted && Array.isArray(data.tracks) && data.tracks.length > 0) {
+            setTracks(prev => {
+              if (showNotice && data.tracks.length !== prev.length) {
+                setToastMessage(`🌸 Playlist updated: ${data.tracks.length} songs available`)
+                setTimeout(() => setToastMessage(null), 3500)
+              }
+              return data.tracks
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('[FloatingPillPlayer] Could not fetch dynamic music manifest, using bundled list:', err)
+      }
+    }
+
+    // Initial load
+    loadManifest(false)
+
+    // Listen to live Vite development HMR events (instant detection without page reload!)
+    if (import.meta.hot) {
+      import.meta.hot.on('music-playlist-updated', (manifest: PlaylistManifest) => {
+        if (isMounted && manifest && Array.isArray(manifest.tracks) && manifest.tracks.length > 0) {
+          setTracks(manifest.tracks)
+          setToastMessage(`🎵 New song detected! Playlist updated (${manifest.tracks.length} tracks)`)
+          setTimeout(() => setToastMessage(null), 3500)
+        }
+      })
+    }
+
+    // Periodic background check so even static or production deployments auto-sync
+    const pollInterval = setInterval(() => {
+      loadManifest(true)
+    }, 10000)
+
+    return () => {
+      isMounted = false
+      clearInterval(pollInterval)
+    }
+  }, [])
+
+  // 3. Preserve currently playing track when the playlist updates
+  useEffect(() => {
+    if (!tracks || tracks.length === 0) return
+    if (activeTrackRef.current) {
+      const curUrl = activeTrackRef.current.url
+      const curTitle = activeTrackRef.current.title
+      const newIdx = tracks.findIndex(t => t.url === curUrl || t.title === curTitle)
+      if (newIdx !== -1 && newIdx !== currentTrackIndex) {
+        setCurrentTrackIndex(newIdx)
+      }
+    }
+  }, [tracks])
+
+  // 4. When track changes and user has already started playing, play new track
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
 
     // Update duration fallback if metadata not yet loaded
-    if (activeTrack.duration) {
+    if (activeTrack?.duration) {
       setTrackDuration(activeTrack.duration)
     }
 
@@ -70,7 +134,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
             console.warn('Playback error on track switch:', err)
             setIsPlaying(false)
             if (err.name !== 'AbortError') {
-              setToastMessage(`Unable to play "${activeTrack.title}". Please verify ${activeTrack.url}`)
+              setToastMessage(`Could not play "${activeTrack?.title || 'audio'}". File may be missing or unsupported.`)
               setTimeout(() => setToastMessage(null), 4000)
             }
           })
@@ -95,15 +159,18 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
   }
 
   const handleAudioEnded = () => {
-    // Automatically advance to the next song when current finishes
+    // Automatically advance to next song when current finishes
     handleNextTrack(true)
   }
 
   const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
     console.error('Audio playback error event:', e)
     setIsPlaying(false)
-    setToastMessage(`Could not load "${activeTrack.title}". Please ensure ${activeTrack.url} is in public/music/`)
-    setTimeout(() => setToastMessage(null), 5000)
+    setToastMessage(`Could not play "${activeTrack?.title || 'track'}". Skipping to next song...`)
+    setTimeout(() => {
+      setToastMessage(null)
+      handleNextTrack(true)
+    }, 3000)
   }
 
   // Select a specific track
@@ -121,12 +188,13 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
 
   // Next Track logic
   const handleNextTrack = (auto: boolean = false) => {
+    if (tracks.length === 0) return
     let nextIdx: number
     if (isShuffle) {
-      const remaining = playlist.tracks.map((_, i) => i).filter(i => i !== currentTrackIndex)
+      const remaining = tracks.map((_, i) => i).filter(i => i !== currentTrackIndex)
       nextIdx = remaining.length > 0 ? remaining[Math.floor(Math.random() * remaining.length)] : 0
     } else {
-      nextIdx = (currentTrackIndex + 1) % playlist.tracks.length
+      nextIdx = (currentTrackIndex + 1) % tracks.length
     }
     selectTrack(nextIdx, auto || hasUserStartedPlaying || isPlaying)
   }
@@ -139,7 +207,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
       setCurrentTime(0)
       return
     }
-    const prevIdx = (currentTrackIndex - 1 + playlist.tracks.length) % playlist.tracks.length
+    const prevIdx = (currentTrackIndex - 1 + tracks.length) % tracks.length
     selectTrack(prevIdx, hasUserStartedPlaying || isPlaying)
   }
 
@@ -160,7 +228,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
       } catch (err: any) {
         console.error('Audio play error:', err)
         setIsPlaying(false)
-        setToastMessage(`Could not play audio: ${err.message || 'Check audio file'}`)
+        setToastMessage(`Audio playback error: ${err.message || 'Check audio file'}`)
         setTimeout(() => setToastMessage(null), 4000)
       }
     }
@@ -217,7 +285,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
   const progressPercent = trackDuration > 0 ? Math.min(100, (currentTime / trackDuration) * 100) : 0
 
   // Filtered tracks for drawer search
-  const filteredTracks = playlist.tracks.filter(
+  const filteredTracks = tracks.filter(
     t =>
       t.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
       t.artist.toLowerCase().includes(searchFilter.toLowerCase())
@@ -232,7 +300,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
       {/* Real HTML5 Audio Element */}
       <audio
         ref={audioRef}
-        src={activeTrack.url}
+        src={activeTrack?.url}
         preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
@@ -257,10 +325,13 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
             <div className="spotify-modal-title-row">
               <span className={`spotify-indicator-dot ${isPlaying ? 'dot-active' : ''}`} />
               <span className="spotify-modal-title">
-                {playlist.title} — {playlist.tracks.length} Songs Curated for Anshika
+                {playlist.title} — {tracks.length} Songs Curated for Anshika
               </span>
             </div>
             <div className="spotify-modal-buttons">
+              <span className="playlist-live-badge" title="Auto-detects newly added songs in public/music/">
+                <Sparkles size={11} /> Auto-Sync
+              </span>
               <button
                 onClick={() => setShowPlaylistDrawer(false)}
                 className="btn-spotify-close"
@@ -276,7 +347,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
             <Search size={13} className="playlist-search-icon" />
             <input
               type="text"
-              placeholder="Search in 34 birthday songs..."
+              placeholder={`Search in ${tracks.length} birthday songs...`}
               value={searchFilter}
               onChange={e => setSearchFilter(e.target.value)}
               className="playlist-search-input"
@@ -295,7 +366,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
           {/* Scrollable Tracklist */}
           <div className="playlist-tracks-scroll" role="list">
             {filteredTracks.map(track => {
-              const originalIndex = playlist.tracks.findIndex(t => t.id === track.id)
+              const originalIndex = tracks.findIndex(t => t.id === track.id)
               const isActive = originalIndex === currentTrackIndex
 
               return (
@@ -308,20 +379,32 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
                   role="listitem"
                 >
                   <div className="track-left-info">
-                    <span className="track-index-num">
-                      {isActive && isPlaying ? (
-                        <span className="track-playing-eq">
+                    {/* Track Artwork Thumbnail or Play Indicator */}
+                    <div className="track-row-thumb-box">
+                      <img
+                        src={track.thumbnailUrl || '/shrine-clean.jpg'}
+                        alt=""
+                        className="track-row-thumb"
+                        onError={e => {
+                          ;(e.target as HTMLImageElement).src = '/shrine-clean.jpg'
+                        }}
+                      />
+                      {isActive && isPlaying && (
+                        <div className="track-thumb-playing-overlay">
                           <span className="eq-dot dot-1" />
                           <span className="eq-dot dot-2" />
                           <span className="eq-dot dot-3" />
-                        </span>
-                      ) : (
-                        originalIndex + 1
+                        </div>
                       )}
-                    </span>
+                    </div>
                     <div className="track-name-meta">
-                      <span className="track-row-title">{track.title}</span>
-                      <span className="track-row-artist">{track.artist}</span>
+                      <div className="track-title-row">
+                        <span className="track-row-title">{track.title}</span>
+                        {track.format && (
+                          <span className="track-format-tag">{track.format}</span>
+                        )}
+                      </div>
+                      <span className="track-row-artist">{track.artist || 'Curated for Anshika'}</span>
                     </div>
                   </div>
                   <span className="track-row-duration">
@@ -339,7 +422,7 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
 
           <div className="spotify-modal-footer">
             <span className="spotify-footer-hint">
-              ♡ Lossless local playback from public/music/ • Click any song to play
+              ♡ Drop any audio into public/music/ • Auto-discovers MP3, WAV, OGG, M4A
             </span>
           </div>
         </div>
@@ -351,11 +434,11 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
         <button
           onClick={() => setShowPlaylistDrawer(!showPlaylistDrawer)}
           className={`player-album-thumb ${isPlaying ? 'thumb-rotating' : ''}`}
-          title="Open Playlist (34 Songs)"
-          aria-label="Open Playlist (34 Songs)"
+          title={`Open Playlist (${tracks.length} Songs)`}
+          aria-label={`Open Playlist (${tracks.length} Songs)`}
         >
           <img
-            src={activeTrack.thumbnailUrl || playlist.thumbnailUrl || '/shrine-clean.jpg'}
+            src={activeTrack?.thumbnailUrl || '/shrine-clean.jpg'}
             alt="Song artwork"
             className="thumb-image-circle"
             loading="eager"
@@ -369,11 +452,11 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
         <div
           className={`player-track-info ${isChangingTrack ? 'is-changing' : ''}`}
           onClick={() => setShowPlaylistDrawer(!showPlaylistDrawer)}
-          title="Click to view all 34 songs"
+          title={`Click to view all ${tracks.length} songs`}
           style={{ cursor: 'pointer' }}
         >
-          <span className="player-song-title">{activeTrack.title}</span>
-          <span className="player-song-artist">{activeTrack.artist}</span>
+          <span className="player-song-title">{activeTrack?.title || 'Select a song'}</span>
+          <span className="player-song-artist">{activeTrack?.artist || 'Curated for Anshika'}</span>
         </div>
 
         {/* Animated Equalizer */}
@@ -498,11 +581,11 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
             id="player-playlist-toggle"
             onClick={() => setShowPlaylistDrawer(!showPlaylistDrawer)}
             className={`btn-player-spotify ${showPlaylistDrawer ? 'is-active' : ''}`}
-            title="View 34 Birthday Songs"
+            title={`View ${tracks.length} Birthday Songs`}
             aria-label="Toggle Playlist Drawer"
           >
             <Music size={13} />
-            <span className="spotify-label">26 October 🌸</span>
+            <span className="spotify-label">{tracks.length} Songs 🌸</span>
           </button>
         </div>
       </div>
