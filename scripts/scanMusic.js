@@ -95,15 +95,18 @@ export async function scanMusicFolder(projectRoot = process.cwd()) {
       console.warn(`[music-scan] Metadata parse error for ${filename}, using filename fallback:`, err.message)
     }
 
-    const url = `/music/${encodeURIComponent(filename).replace(/%20/g, ' ')}`
+    const S3_BASE_URL = 'https://anshika-birthday-music-vault.s3.ap-south-1.amazonaws.com'
+    const s3Url = `${S3_BASE_URL}/music/${encodeURIComponent(filename).replace(/%20/g, ' ')}`
+    const localUrl = `/music/${encodeURIComponent(filename).replace(/%20/g, ' ')}`
 
     tracks.push({
       id: safeId,
       title,
       artist: artist || 'Curated for Anshika',
-      url,
+      url: s3Url,
+      localUrl,
       duration,
-      thumbnailUrl,
+      thumbnailUrl: thumbnailUrl.startsWith('/music/.covers/') ? `${S3_BASE_URL}${thumbnailUrl}` : thumbnailUrl,
       filename,
       format: ext.replace('.', '').toUpperCase()
     })

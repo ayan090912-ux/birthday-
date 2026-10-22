@@ -33,9 +33,9 @@ export async function deployToAmplify(appId = 'd14jgamp8ms913', branchName = 'ma
     throw new Error('dist directory not found after build!')
   }
 
-  // 2. Zip the contents of dist
+  // 2. Zip the contents of dist (excluding redundant 240MB local MP3 copies since audio streams from S3)
   console.log(`🌸 [amplify-deploy] Compressing build artifacts into ${zipPath}...`)
-  execSync(`cd "${distDir}" && zip -r "${zipPath}" .`, { stdio: 'ignore' })
+  execSync(`cd "${distDir}" && zip -r "${zipPath}" . -x "music/*.mp3"`, { stdio: 'ignore' })
   const zipSizeMb = (fs.statSync(zipPath).size / 1024 / 1024).toFixed(2)
   console.log(`🌸 [amplify-deploy] Compressed bundle size: ${zipSizeMb} MB`)
 

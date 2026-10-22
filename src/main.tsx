@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 
+// Anshika Birthday Web Experience - Production Build
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
