@@ -11,6 +11,7 @@
     "setup-service": "node scripts/setupMacService.js",
     "uninstall-service": "node scripts/setupMacService.js --uninstall",
     "build": "node scripts/scanMusic.js && tsc && vite build",
+    "deploy:aws": "node scripts/deployAmplify.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -21,7 +22,11 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-amplify": "^3.1155.0",
+    "@aws-sdk/client-cloudformation": "^3.1155.0",
+    "@aws-sdk/client-ec2": "^3.1155.0",
     "@aws-sdk/client-s3": "^3.1155.0",
+    "@aws-sdk/client-sts": "^3.1155.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
