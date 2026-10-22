@@ -263,6 +263,6 @@ export const initialSiteConfig: SiteConfig = {
   recipientName: 'Anshika',
   headlineLine1: 'HAPPY BIRTHDAY,',
   headlineLine2: 'ANSHIKA ♡',
-  supportingMessage: 'Some people make the world feel a little more beautiful just by being in it.',
+  supportingMessage: "Thank you for being there when I was struggling to find myself. Thank you for everything, Anshika. I just want you to be happy, even if I'm not a part of your life anymore. Just keep smiling, always. ❤️",
   playlistTitle: '26 October ♡'
 }

@@ -33,10 +33,9 @@ export const BirthdayHeroOverlay: React.FC<BirthdayHeroOverlayProps> = ({ config
           <span className="crest-line crest-line-right" />
         </div>
 
-        {/* Balanced Subtitle Message */}
-        <p className="hero-editorial-subtitle">
-          <span className="subtitle-line">Some people make the world feel a little more</span>
-          <span className="subtitle-line">beautiful just by being in it.</span>
+        {/* Emotional Birthday Dedication Message */}
+        <p className="hero-editorial-subtitle" id="birthday-personal-message">
+          Thank you for being there when I was struggling to find myself. Thank you for everything, Anshika. I just want you to be happy, even if I'm not a part of your life anymore. Just keep smiling, always.&nbsp;<span className="message-heart-accent" aria-label="love">❤️</span>
         </p>
       </div>
     </header>
