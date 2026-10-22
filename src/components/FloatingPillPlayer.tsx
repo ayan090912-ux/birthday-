@@ -55,20 +55,46 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
   useEffect(() => {
     let isMounted = true
 
+    const CLOUD_MANIFEST_URL = (import.meta.env.VITE_CLOUD_MANIFEST_URL || 'https://anshika-birthday-music-vault.s3.ap-south-1.amazonaws.com/music-manifest.json').trim()
+
     const loadManifest = async (showNotice: boolean = false) => {
       try {
-        const res = await fetch(`/music-manifest.json?t=${Date.now()}`)
-        if (res.ok) {
-          const data: PlaylistManifest = await res.json()
-          if (isMounted && Array.isArray(data.tracks) && data.tracks.length > 0) {
-            setTracks(prev => {
-              if (showNotice && data.tracks.length !== prev.length) {
-                setToastMessage(`🌸 Playlist updated: ${data.tracks.length} songs available`)
-                setTimeout(() => setToastMessage(null), 3500)
+        let manifestData: PlaylistManifest | null = null
+
+        // 1. First attempt to fetch the live cloud manifest from persistent production storage
+        if (CLOUD_MANIFEST_URL) {
+          try {
+            const cloudRes = await fetch(`${CLOUD_MANIFEST_URL}?t=${Date.now()}`)
+            if (cloudRes.ok) {
+              const data: PlaylistManifest = await cloudRes.json()
+              if (Array.isArray(data.tracks) && data.tracks.length > 0) {
+                manifestData = data
               }
-              return data.tracks
-            })
+            }
+          } catch {
+            // Cloud manifest offline or network error, fallback to local
           }
+        }
+
+        // 2. Fall back to local manifest if cloud is unavailable or during offline local dev
+        if (!manifestData) {
+          const localRes = await fetch(`/music-manifest.json?t=${Date.now()}`)
+          if (localRes.ok) {
+            const data: PlaylistManifest = await localRes.json()
+            if (Array.isArray(data.tracks) && data.tracks.length > 0) {
+              manifestData = data
+            }
+          }
+        }
+
+        if (isMounted && manifestData && Array.isArray(manifestData.tracks) && manifestData.tracks.length > 0) {
+          setTracks(prev => {
+            if (showNotice && manifestData!.tracks.length !== prev.length) {
+              setToastMessage(`🌸 Playlist updated: ${manifestData!.tracks.length} songs available`)
+              setTimeout(() => setToastMessage(null), 3500)
+            }
+            return manifestData!.tracks
+          })
         }
       } catch (err) {
         console.warn('[FloatingPillPlayer] Could not fetch dynamic music manifest, using bundled list:', err)

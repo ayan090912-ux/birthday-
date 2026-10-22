@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "vite",
     "scan-music": "node scripts/scanMusic.js",
+    "sync-music": "node scripts/cloudSyncWatcher.js --watch",
+    "sync-music:once": "node scripts/cloudSyncWatcher.js",
+    "setup-service": "node scripts/setupMacService.js",
+    "uninstall-service": "node scripts/setupMacService.js --uninstall",
     "build": "node scripts/scanMusic.js && tsc && vite build",
     "preview": "vite preview"
   },
@@ -17,6 +21,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1155.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
