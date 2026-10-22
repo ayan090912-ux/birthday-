@@ -344,19 +344,45 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
         </div>
       )}
 
+      {/* Backdrop scrim to close modal on touch/click */}
+      {showPlaylistDrawer && (
+        <div
+          className="player-modal-backdrop"
+          onClick={() => setShowPlaylistDrawer(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Interactive Birthday Playlist Drawer */}
       {showPlaylistDrawer && (
-        <div className="player-spotify-modal" role="dialog" aria-label="Anshika's Birthday Playlist">
+        <div className="player-spotify-modal" role="dialog" aria-modal="true" aria-label="Anshika's Birthday Playlist">
           <div className="spotify-modal-header">
             <div className="spotify-modal-title-row">
               <span className={`spotify-indicator-dot ${isPlaying ? 'dot-active' : ''}`} />
               <span className="spotify-modal-title">
-                {playlist.title} — {tracks.length} Songs Curated for Anshika
+                {tracks.length} Songs for Anshika
               </span>
             </div>
             <div className="spotify-modal-buttons">
+              <button
+                onClick={handleToggleShuffle}
+                className={`btn-modal-header-action ${isShuffle ? 'active-shuffle' : ''}`}
+                title={isShuffle ? 'Shuffle: On' : 'Shuffle: Off'}
+                aria-label={isShuffle ? 'Disable Shuffle' : 'Enable Shuffle'}
+              >
+                <Shuffle size={13} />
+              </button>
+              <button
+                onClick={handleRefreshMusic}
+                className={`btn-modal-header-action ${isSpinningRefresh ? 'is-spinning' : ''}`}
+                title="Refresh / Pick another song"
+                aria-label="Refresh / Pick another song"
+              >
+                <RefreshCw size={13} />
+              </button>
               <span className="playlist-live-badge" title="Auto-detects newly added songs in public/music/">
-                <Sparkles size={11} /> Auto-Sync
+                <Sparkles size={11} />
+                <span className="badge-sync-label"> Auto-Sync</span>
               </span>
               <button
                 onClick={() => setShowPlaylistDrawer(false)}
@@ -456,12 +482,28 @@ export const FloatingPillPlayer: React.FC<FloatingPillPlayerProps> = ({ playlist
 
       {/* Main Floating Pill Bar */}
       <div className="reference-pill-bar">
+        {/* Mobile Mini Progress Bar (runs seamlessly along top of pill on compact screens) */}
+        <div className="mobile-pill-scrub-bar" aria-label="Audio timeline track">
+          <div className="mobile-pill-scrub-fill" style={{ width: `${progressPercent}%` }} />
+          <input
+            type="range"
+            min="0"
+            max={trackDuration > 0 ? trackDuration : 100}
+            step="0.1"
+            value={currentTime}
+            onChange={handleSeek}
+            className="mobile-pill-scrub-slider"
+            aria-label="Seek track position on mobile"
+          />
+        </div>
+
         {/* Album Artwork Thumbnail */}
         <button
           onClick={() => setShowPlaylistDrawer(!showPlaylistDrawer)}
           className={`player-album-thumb ${isPlaying ? 'thumb-rotating' : ''}`}
           title={`Open Playlist (${tracks.length} Songs)`}
           aria-label={`Open Playlist (${tracks.length} Songs)`}
+          aria-expanded={showPlaylistDrawer}
         >
           <img
             src={activeTrack?.thumbnailUrl || '/shrine-clean.jpg'}

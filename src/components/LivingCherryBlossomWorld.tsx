@@ -539,9 +539,19 @@ export const LivingCherryBlossomWorld: React.FC = () => {
       animId = requestAnimationFrame(render)
     }
 
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId)
+      } else {
+        animId = requestAnimationFrame(render)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
     animId = requestAnimationFrame(render)
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseleave', handleMouseLeave)

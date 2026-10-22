@@ -49,54 +49,72 @@ export const InteractiveLantern: React.FC<InteractiveLanternProps> = ({
   // Pendulum swing & mouse interaction loop
   useEffect(() => {
     let animId: number
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const updatePhysics = () => {
+      if (document.hidden) return
+
       const p = physicsRef.current
-      p.time += 0.024 * config.swingSpeed
+      if (!prefersReducedMotion) {
+        p.time += 0.024 * config.swingSpeed
 
-      // 1. Natural ambient pendulum oscillation
-      const ambientSwing = Math.sin(p.time) * (1.8 * config.scale)
+        // 1. Natural ambient pendulum oscillation
+        const ambientSwing = Math.sin(p.time) * (1.8 * config.scale)
 
-      // 2. Mouse proximity wind impulse
-      if (lanternRef.current) {
-        const rect = lanternRef.current.getBoundingClientRect()
-        const centerX = rect.left + rect.width / 2
-        const centerY = rect.top + rect.height / 2
-        const dist = Math.hypot(rawMouseX - centerX, rawMouseY - centerY)
+        // 2. Mouse proximity wind impulse
+        if (lanternRef.current) {
+          const rect = lanternRef.current.getBoundingClientRect()
+          const centerX = rect.left + rect.width / 2
+          const centerY = rect.top + rect.height / 2
+          const dist = Math.hypot(rawMouseX - centerX, rawMouseY - centerY)
 
-        // If cursor moves near the lantern (within 130px)
-        if (dist < 130 && Math.abs(mouseVx) > 0.5) {
-          const force = (1 - dist / 130) * mouseVx * 0.08
-          p.velocity += force
+          // If cursor moves near the lantern (within 130px)
+          if (dist < 130 && Math.abs(mouseVx) > 0.5) {
+            const force = (1 - dist / 130) * mouseVx * 0.08
+            p.velocity += force
+          }
+
+          // Proximity glow
+          if (dist < 160) {
+            p.glow = Math.max(p.glow, (1 - dist / 160) * 0.45)
+          }
         }
 
-        // Proximity glow
-        if (dist < 160) {
-          p.glow = Math.max(p.glow, (1 - dist / 160) * 0.45)
-        }
+        // Spring physics toward ambient swing
+        const restoringForce = (ambientSwing - p.angle) * p.springK
+        p.velocity += restoringForce
+        p.velocity *= p.damping
+        p.angle += p.velocity
+
+        // Decay glow bonus
+        p.glow *= 0.96
+
+        setAngle(p.angle)
+        setGlowBonus(p.glow)
       }
-
-      // Spring physics toward ambient swing
-      const restoringForce = (ambientSwing - p.angle) * p.springK
-      p.velocity += restoringForce
-      p.velocity *= p.damping
-      p.angle += p.velocity
-
-      // Decay glow bonus
-      p.glow *= 0.96
-
-      setAngle(p.angle)
-      setGlowBonus(p.glow)
 
       animId = requestAnimationFrame(updatePhysics)
     }
 
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId)
+      } else {
+        animId = requestAnimationFrame(updatePhysics)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
     animId = requestAnimationFrame(updatePhysics)
-    return () => cancelAnimationFrame(animId)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      cancelAnimationFrame(animId)
+    }
   }, [config.swingSpeed, config.scale, mouseVx, rawMouseX, rawMouseY])
 
   // Click / Tap pulse interaction
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation()
 
     // Add radiant light pulse ring
@@ -129,6 +147,8 @@ export const InteractiveLantern: React.FC<InteractiveLanternProps> = ({
   return (
     <div
       ref={lanternRef}
+      id={config.id}
+      data-lantern-id={config.id}
       className={`interactive-hanging-lantern-root ${isHovered ? 'is-hovered' : ''}`}
       style={{
         left: `calc(${config.xPercent}% + ${parallaxX}px)`,
@@ -137,6 +157,12 @@ export const InteractiveLantern: React.FC<InteractiveLanternProps> = ({
         zIndex: 15
       }}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleClick(e)
+        }
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       title="Japanese Paper Lantern (Click to light)"

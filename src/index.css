@@ -34,7 +34,9 @@
 
 html, body {
   width: 100%;
+  min-height: 100%;
   height: 100%;
+  height: 100dvh;
   overflow: hidden; /* Single-screen living wallpaper */
   background-color: var(--color-midnight-sky);
   color: var(--color-moon-ivory);
@@ -42,6 +44,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ==========================================================================
@@ -50,8 +54,10 @@ html, body {
 
 .cherry-blossom-shrine-app {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  height: 100%;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -619,16 +625,17 @@ html, body {
 
 .reference-style-music-player {
   position: fixed;
-  bottom: 24px;
+  bottom: max(22px, env(safe-area-inset-bottom, 22px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
   width: auto;
-  max-width: 580px;
+  max-width: min(580px, calc(100vw - 32px));
   transition: transform 0.3s var(--ease-smooth);
 }
 
 .reference-pill-bar {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -640,6 +647,81 @@ html, body {
   padding: 6px 14px 6px 8px;
   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.7), 0 0 20px rgba(244, 183, 205, 0.1);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Mobile Top Edge Scrub Bar (Hidden on desktop, active on mobile) */
+.mobile-pill-scrub-bar {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 14px;
+  right: 14px;
+  height: 2.5px;
+  background: rgba(249, 202, 219, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 4;
+}
+
+.mobile-pill-scrub-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-sakura-rose), var(--color-sakura-pink));
+  border-radius: 999px;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(244, 183, 205, 0.8);
+}
+
+.mobile-pill-scrub-slider {
+  position: absolute;
+  inset: -8px 0;
+  width: 100%;
+  height: calc(100% + 16px);
+  opacity: 0;
+  cursor: pointer;
+  z-index: 5;
+}
+
+/* Playlist Modal Backdrop Scrim */
+.player-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 3, 10, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: backdrop-fade 0.2s ease;
+}
+
+@keyframes backdrop-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.btn-modal-header-action {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(249, 202, 219, 0.25);
+  color: rgba(255, 245, 232, 0.75);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-header-action:hover, .btn-modal-header-action.active-shuffle {
+  background: var(--color-sakura-pink);
+  color: #120e1e;
+  border-color: var(--color-sakura-pink);
+  box-shadow: 0 0 10px rgba(244, 183, 205, 0.5);
+}
+
+.btn-modal-header-action.is-spinning {
+  animation: spin-refresh 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  color: var(--color-sakura-pink);
 }
 
 .reference-style-music-player:hover .reference-pill-bar {
@@ -1335,43 +1417,119 @@ html, body {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN (MOBILE & TABLET)
+   GLOBAL ACCESSIBILITY & FOCUS STYLES
    ========================================================================== */
 
+button:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+.playlist-track-row:focus-visible {
+  outline: 2px solid var(--color-sakura-pink);
+  outline-offset: 2px;
+  box-shadow: 0 0 10px rgba(244, 183, 205, 0.6);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN SYSTEM (PHONES, TABLETS, LAPTOPS, DESKTOPS)
+   ========================================================================== */
+
+/* --- TABLETS (769px - 1024px) --- */
+@media (max-width: 1024px) {
+  .birthday-hero-overlay {
+    top: clamp(38px, 9.5vh, 72px);
+    width: 90%;
+    max-width: 620px;
+  }
+
+  .hero-title-prefix {
+    font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+  }
+
+  .hero-title-name {
+    font-size: clamp(1.9rem, 3.8vw, 2.7rem);
+    letter-spacing: 0.16em;
+    text-indent: 0.16em;
+  }
+
+  .hero-editorial-subtitle {
+    font-size: 0.98rem;
+    max-width: 520px;
+    line-height: 1.68;
+  }
+
+  .reference-style-music-player {
+    max-width: 520px;
+  }
+}
+
+/* --- LARGE PHONES & SMALL TABLETS (481px - 768px) --- */
 @media (max-width: 768px) {
   .scenery-base-image {
     object-position: center 38%;
   }
 
+  /* Clear the upper-left lantern that would intersect mobile centered text */
+  #lantern-gate-top-left {
+    display: none !important;
+  }
+
+  #lantern-pillar-mid-left {
+    top: calc(52% + 5px) !important;
+    left: 2% !important;
+    transform: translate(-50%, 0) scale(0.75) !important;
+  }
+
+  /* Tighter foreground canopy branches */
+  .branch-top-left {
+    top: -24px;
+    left: -15px;
+    width: 340px;
+    max-width: 42vw;
+  }
+
+  .branch-top-right {
+    top: -24px;
+    right: -15px;
+    width: 360px;
+    max-width: 44vw;
+  }
+
   .birthday-hero-overlay {
-    top: clamp(22px, 6.5vh, 45px);
-    width: 95%;
+    top: max(clamp(32px, 7.5dvh, 56px), env(safe-area-inset-top, 22px));
+    width: min(94%, 480px);
+  }
+
+  .birthday-typography-cluster {
+    gap: 0.45rem;
   }
 
   .hero-title-prefix {
-    font-size: 1.25rem;
+    font-size: clamp(1.05rem, 3.6vw, 1.3rem);
     letter-spacing: 0.16em;
     text-indent: 0.16em;
   }
 
   .hero-title-name {
-    font-size: 1.95rem;
+    font-size: clamp(1.6rem, 5.5vw, 2.1rem);
     letter-spacing: 0.14em;
     text-indent: 0.14em;
   }
 
   .hero-editorial-subtitle {
-    font-size: 0.88rem;
-    max-width: 340px;
-    line-height: 1.62;
+    font-size: clamp(0.85rem, 2.8vw, 0.94rem);
+    max-width: 360px;
+    line-height: 1.58;
     letter-spacing: 0.015em;
-    margin-top: 0.25rem;
+    margin-top: 0.2rem;
   }
 
+  /* Compact Music Player */
   .reference-style-music-player {
-    bottom: 18px;
+    bottom: max(16px, env(safe-area-inset-bottom, 16px));
     width: calc(100% - 24px);
-    max-width: 420px;
+    max-width: 440px;
   }
 
   .reference-pill-bar {
@@ -1379,9 +1537,128 @@ html, body {
     gap: 8px;
   }
 
+  /* Enable top-edge scrub bar on mobile */
+  .mobile-pill-scrub-bar {
+    display: block;
+  }
+
+  /* Hide inline timeline box and hardware-redundant controls */
+  .player-timeline-box {
+    display: none;
+  }
+
+  .player-volume-wrapper {
+    display: none;
+  }
+
+  .mini-equalizer {
+    display: none;
+  }
+
   .player-track-info {
-    min-width: 80px;
-    max-width: 100px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .player-song-title {
+    font-size: 0.78rem;
+  }
+
+  .player-song-artist {
+    font-size: 0.65rem;
+  }
+
+  .player-control-cluster {
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .btn-player-spotify .spotify-label {
+    display: none;
+  }
+
+  .btn-player-spotify {
+    padding: 6px;
+    border-radius: 50%;
+  }
+
+  .player-spotify-modal {
+    width: calc(100% - 20px);
+    max-width: 400px;
+    bottom: calc(100% + 12px);
+    max-height: min(70dvh, 460px);
+  }
+
+  .playlist-tracks-scroll {
+    max-height: min(42dvh, 260px);
+  }
+}
+
+/* --- STANDARD PHONES (361px - 480px, e.g. iPhone 13/14/15, Galaxy S21) --- */
+@media (max-width: 480px) {
+  /* Hide both upper hanging lanterns so screen center is completely clear */
+  #lantern-pillar-mid-left {
+    display: none !important;
+  }
+
+  .branch-top-left {
+    top: -28px;
+    left: -20px;
+    width: 280px;
+    max-width: 44vw;
+  }
+
+  .branch-top-right {
+    top: -28px;
+    right: -20px;
+    width: 300px;
+    max-width: 46vw;
+  }
+
+  .birthday-hero-overlay {
+    top: max(clamp(28px, 6.8dvh, 48px), env(safe-area-inset-top, 20px));
+    width: 95%;
+  }
+
+  .hero-title-prefix {
+    font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+    letter-spacing: 0.15em;
+    text-indent: 0.15em;
+  }
+
+  .hero-title-name {
+    font-size: clamp(1.4rem, 5.8vw, 1.75rem);
+    letter-spacing: 0.13em;
+    text-indent: 0.13em;
+  }
+
+  .hero-sakura-crest {
+    max-width: 240px;
+    gap: 10px;
+  }
+
+  .hero-editorial-subtitle {
+    font-size: 0.82rem;
+    max-width: 320px;
+    line-height: 1.54;
+    margin-top: 0.15rem;
+  }
+
+  .reference-style-music-player {
+    bottom: max(14px, env(safe-area-inset-bottom, 14px));
+    width: calc(100% - 20px);
+    max-width: 400px;
+  }
+
+  .reference-pill-bar {
+    padding: 6px 10px 6px 6px;
+    gap: 7px;
+  }
+
+  .player-album-thumb {
+    width: 34px;
+    height: 34px;
   }
 
   .player-song-title {
@@ -1392,24 +1669,308 @@ html, body {
     font-size: 0.62rem;
   }
 
-  .player-timestamps {
+  /* Keep refresh in playlist header to preserve pristine pill space */
+  .btn-refresh {
     display: none;
   }
 
-  .player-control-cluster {
-    gap: 3px;
+  .btn-play-pause {
+    width: 36px;
+    height: 36px;
   }
 
-  .btn-player-spotify .spotify-label {
+  .btn-player-action {
+    padding: 4px;
+  }
+
+  .playlist-live-badge .badge-sync-label {
     display: none;
   }
 
-  .btn-player-spotify {
+  .playlist-live-badge {
     padding: 5px;
     border-radius: 50%;
   }
 
-  .mini-equalizer {
-    display: none;
+  .player-spotify-modal {
+    width: calc(100% - 16px);
+    max-width: 360px;
+    max-height: min(72dvh, 440px);
+    padding: 12px 10px 8px 10px;
+  }
+
+  .playlist-tracks-scroll {
+    max-height: min(44dvh, 240px);
   }
 }
+
+/* --- SMALL PHONES (320px - 360px, e.g. iPhone SE 1st gen) --- */
+@media (max-width: 360px) {
+  .birthday-hero-overlay {
+    top: max(22px, env(safe-area-inset-top, 16px));
+    width: 96%;
+  }
+
+  .birthday-typography-cluster {
+    gap: 0.35rem;
+  }
+
+  .hero-title-prefix {
+    font-size: 0.88rem;
+    letter-spacing: 0.13em;
+    text-indent: 0.13em;
+  }
+
+  .hero-title-name {
+    font-size: 1.25rem;
+    letter-spacing: 0.11em;
+    text-indent: 0.11em;
+  }
+
+  .hero-sakura-crest {
+    max-width: 190px;
+    gap: 8px;
+    margin: 0.08rem 0;
+  }
+
+  .hero-editorial-subtitle {
+    font-size: 0.76rem;
+    max-width: 275px;
+    line-height: 1.48;
+    margin-top: 0.1rem;
+  }
+
+  .reference-style-music-player {
+    bottom: max(10px, env(safe-area-inset-bottom, 10px));
+    width: calc(100% - 14px);
+  }
+
+  .reference-pill-bar {
+    padding: 5px 8px 5px 5px;
+    gap: 5px;
+  }
+
+  .player-album-thumb {
+    width: 30px;
+    height: 30px;
+  }
+
+  .player-song-title {
+    font-size: 0.7rem;
+  }
+
+  .player-song-artist {
+    font-size: 0.58rem;
+  }
+
+  /* Hide shuffle on 320px pill (accessible inside playlist header) */
+  .btn-shuffle {
+    display: none;
+  }
+
+  .player-control-cluster {
+    gap: 2px;
+  }
+
+  .btn-play-pause {
+    width: 34px;
+    height: 34px;
+  }
+
+  .btn-player-spotify {
+    padding: 5px;
+  }
+
+  .player-spotify-modal {
+    width: calc(100% - 10px);
+    max-width: 310px;
+    max-height: min(74dvh, 400px);
+    padding: 10px 8px 6px 8px;
+  }
+
+  .playlist-tracks-scroll {
+    max-height: min(45dvh, 210px);
+  }
+}
+
+/* --- MOBILE LANDSCAPE MODE (Short Viewports, Height <= 520px) --- */
+@media (orientation: landscape) and (max-height: 520px) {
+  .scenery-base-image {
+    object-position: center 42%;
+  }
+
+  #lantern-gate-top-left {
+    display: none !important;
+  }
+
+  #lantern-pillar-mid-left {
+    display: none !important;
+  }
+
+  .branch-top-left {
+    top: -42px;
+    left: -20px;
+    width: 260px;
+    max-width: 30vw;
+  }
+
+  .branch-top-right {
+    top: -42px;
+    right: -20px;
+    width: 280px;
+    max-width: 32vw;
+  }
+
+  .birthday-hero-overlay {
+    top: max(6px, env(safe-area-inset-top, 6px));
+    width: min(94%, 580px);
+  }
+
+  .birthday-typography-cluster {
+    gap: 0.2rem;
+  }
+
+  .hero-title-prefix {
+    font-size: clamp(0.78rem, 2.2vw, 0.98rem);
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
+  }
+
+  .hero-title-name {
+    font-size: clamp(1.2rem, 3.4vw, 1.55rem);
+    letter-spacing: 0.12em;
+    text-indent: 0.12em;
+  }
+
+  .hero-sakura-crest {
+    max-width: 180px;
+    margin: 0.04rem 0;
+  }
+
+  .crest-blossom-petal {
+    font-size: 0.75rem;
+  }
+
+  .hero-editorial-subtitle {
+    font-size: clamp(0.74rem, 1.9vw, 0.84rem);
+    line-height: 1.36;
+    max-width: 490px;
+    margin-top: 0.08rem;
+  }
+
+  .reference-style-music-player {
+    bottom: max(6px, env(safe-area-inset-bottom, 6px));
+    max-width: 480px;
+  }
+
+  .reference-pill-bar {
+    padding: 4px 10px 4px 6px;
+    gap: 6px;
+  }
+
+  .player-album-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  .player-song-title {
+    font-size: 0.72rem;
+  }
+
+  .player-song-artist {
+    font-size: 0.6rem;
+  }
+
+  .btn-play-pause {
+    width: 32px;
+    height: 32px;
+  }
+
+  .btn-player-action {
+    padding: 3px;
+  }
+
+  .player-spotify-modal {
+    bottom: calc(100% + 6px);
+    max-height: min(85dvh, 290px);
+    width: min(94vw, 440px);
+    padding: 10px 10px 6px 10px;
+  }
+
+  .playlist-tracks-scroll {
+    max-height: clamp(90px, 36dvh, 140px);
+  }
+}
+
+/* --- TOUCH DEVICE EXPANDED HIT TARGETS (~44x44px) --- */
+@media (pointer: coarse), (max-width: 768px) {
+  .btn-player-action {
+    min-width: 34px;
+    min-height: 34px;
+    position: relative;
+  }
+
+  .btn-player-action::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .btn-play-pause {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .btn-play-pause::before {
+    inset: -4px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .btn-spotify-close,
+  .btn-search-clear {
+    min-width: 36px;
+    min-height: 36px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-spotify-close::before,
+  .btn-search-clear::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+  }
+
+  .playlist-track-row {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+}
+
+/* --- ACCESSIBILITY: REDUCED MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hero-heart-accent,
+  .message-heart-accent,
+  .crest-blossom-petal,
+  .cloud-band-1,
+  .cloud-band-2,
+  .sway-group-1,
+  .sway-group-2,
+  .sway-group-3,
+  .player-album-thumb.thumb-rotating .thumb-image-circle {
+    animation: none !important;
+  }
+}
+
