@@ -14,10 +14,7 @@ export const App: React.FC = () => {
       {/* 1. Living Multi-Layered Shrine, Moonlight, Flickering Lanterns & Sakura Petals */}
       <LivingCherryBlossomWorld />
 
-      {/* 2. Film Grain Overlay */}
-      <div className="film-grain-overlay" aria-hidden="true" />
-
-      {/* 3. Central Birthday Typography (Upper-Middle, matching reference image) */}
+      {/* 2. Central Editorial Birthday Typography (Upper-Middle Sky) */}
       <BirthdayHeroOverlay config={config} />
 
       {/* 4. Sleek Floating Music Player (Bottom-Center, connected to Anshika's Spotify Playlist) */}

@@ -559,44 +559,34 @@ export const LivingCherryBlossomWorld: React.FC = () => {
 
   return (
     <div ref={containerRef} className="living-shrine-world-container">
-      {/* Layer 1: Base Landscape Artwork with Eased Depth Parallax */}
       <div
         className="scenery-base-layer"
         style={{
-          transform: `translate3d(${shrineParallaxX}px, ${shrineParallaxY}px, 0) scale(1.02)`
+          transform: `translate3d(${shrineParallaxX}px, ${shrineParallaxY}px, 0) scale(1.015)`
         }}
       >
         <picture className="scenery-base-picture">
-          {/* 4K UHD Ultra-High-Resolution Display Source */}
+          {/* Mobile small viewports */}
           <source
-            media="(min-width: 1920px)"
+            media="(max-width: 640px)"
+            type="image/webp"
+            srcSet="/shrine-mobile.webp"
+          />
+          {/* 4K UHD Ultra-High-Resolution Master for all desktop, laptop & Retina displays */}
+          <source
             type="image/webp"
             srcSet="/shrine-4k.webp"
           />
-          {/* 2K / High-DPI Desktop & Laptop Display Source */}
-          <source
-            media="(min-width: 768px)"
-            type="image/webp"
-            srcSet="/shrine-2k.webp 1x, /shrine-4k.webp 2x"
-          />
-          {/* Mobile High-Density Display Source */}
-          <source
-            media="(max-width: 767px)"
-            type="image/webp"
-            srcSet="/shrine-mobile.webp 1x, /shrine-2k.webp 2x"
-          />
-          {/* Universal Fallback Image with 4K and 2K srcset */}
+          {/* Universal 4K Fallback Image */}
           <img
             src="/shrine-4k.jpg"
-            srcSet="/shrine-clean.jpg 1x, /shrine-4k.jpg 2x"
-            alt="Japanese cherry blossom shrine at dusk"
+            alt="Japanese cherry blossom shrine at dusk with Mount Fuji and glowing moon"
             className="scenery-base-image"
             loading="eager"
             fetchPriority="high"
             decoding="async"
           />
         </picture>
-        <div className="scenery-twilight-tint" />
       </div>
 
       {/* Layer 2: Drifting Mountain Valley Mist & Twilight Clouds */}
