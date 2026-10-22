@@ -1,0 +1,1253 @@
+/* ==========================================================================
+   ANSHIKA'S CHERRY BLOSSOM SHRINE BIRTHDAY EXPERIENCE
+   Primary Reference: Twilight Japanese Shrine, Moon, Flickering Lanterns & Floating Sakura
+   ========================================================================== */
+
+:root {
+  /* Color Palette matching reference image */
+  --color-midnight-sky: #0b0c1b;
+  --color-twilight-purple: #1e1533;
+  --color-sakura-pink: #f9cadb;
+  --color-sakura-rose: #e896b8;
+  --color-pale-blossom: #ffdeea;
+  --color-moon-ivory: #fff5e8;
+  --color-moon-ivory-dim: rgba(255, 245, 232, 0.85);
+  --color-lantern-gold: #ffb859;
+  --color-lantern-amber: #ffa845;
+  --color-border-pink: rgba(249, 202, 219, 0.25);
+  --color-player-bg: rgba(14, 12, 26, 0.68);
+
+  /* Typography */
+  --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* Easing */
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Single-screen living wallpaper */
+  background-color: var(--color-midnight-sky);
+  color: var(--color-moon-ivory);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* ==========================================================================
+   MAIN WALLPAPER CONTAINER & LIVING SCENERY LAYERS
+   ========================================================================== */
+
+.cherry-blossom-shrine-app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.living-shrine-world-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Base Reference Landscape Layer (4K Ultra-Sharp Master) */
+.scenery-base-layer {
+  position: absolute;
+  inset: -1.5%;
+  width: 103%;
+  height: 103%;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.scenery-base-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.scenery-base-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 36%;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  filter: contrast(1.02) saturate(1.04);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: transform 0.25s var(--ease-smooth);
+}
+
+.scenery-twilight-tint {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 76% 18%, rgba(255, 245, 232, 0.08) 0%, transparent 40%),
+              linear-gradient(180deg, rgba(11, 12, 27, 0.2) 0%, transparent 40%, rgba(11, 12, 27, 0.35) 100%);
+  pointer-events: none;
+}
+
+/* Mountain Valley Mist & Drifting Twilight Clouds Layer */
+.scenery-drifting-clouds-layer {
+  position: absolute;
+  top: 6%;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.cloud-band {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: radial-gradient(ellipse at 30% 50%, rgba(244, 183, 205, 0.08) 0%, rgba(30, 21, 51, 0.04) 50%, transparent 75%),
+              radial-gradient(ellipse at 80% 45%, rgba(255, 245, 235, 0.06) 0%, rgba(30, 21, 51, 0.03) 45%, transparent 70%);
+  filter: blur(28px);
+}
+
+.cloud-band-1 {
+  animation: cloud-drift-left 65s linear infinite;
+}
+
+.cloud-band-2 {
+  top: 30%;
+  opacity: 0.7;
+  animation: cloud-drift-right 80s linear infinite;
+}
+
+@keyframes cloud-drift-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes cloud-drift-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Lunar Corona Breathing Atmospheric Glow */
+.lunar-corona-glow {
+  position: absolute;
+  left: 76.5%;
+  top: 16.5%;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 245, 230, 0.28) 0%, rgba(244, 183, 205, 0.12) 40%, rgba(185, 168, 232, 0.05) 65%, transparent 80%);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 3;
+  animation: lunar-corona-breathe 6s ease-in-out infinite alternate;
+}
+
+@keyframes lunar-corona-breathe {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+}
+
+/* ==========================================================================
+   INTERACTIVE HANGING JAPANESE LANTERNS
+   ========================================================================== */
+
+.lanterns-interactive-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.interactive-hanging-lantern-root {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: filter 0.2s ease;
+}
+
+.interactive-hanging-lantern-root:focus-visible {
+  outline: 2px solid var(--color-sakura-pink);
+}
+
+.interactive-hanging-lantern-root.is-hovered {
+  filter: drop-shadow(0 0 16px rgba(255, 184, 89, 0.8));
+}
+
+/* Radiant Light Pulse Rings (Triggered on click/tap) */
+.lantern-light-pulse-ring {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #FFB859;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  pointer-events: none;
+  animation: lantern-ring-pulse 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes lantern-ring-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) scale(4.2); opacity: 0; }
+}
+
+/* Volumetric Radial Glow Aura */
+.lantern-volumetric-glow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 190px;
+  height: 190px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(14px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Hanging Cord & Pendulum Assembly */
+.lantern-pendulum-assembly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.lantern-cord-line {
+  width: 1.5px;
+  background: rgba(30, 20, 26, 0.9);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.lantern-top-cap {
+  position: relative;
+  width: 32px;
+  height: 8px;
+  background: #180e18;
+  border-radius: 4px 4px 1px 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.lantern-hanger-loop {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 6px;
+  border: 1.5px solid #d4a373;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+.lantern-roof-trim {
+  position: absolute;
+  bottom: 0;
+  left: -2px;
+  right: -2px;
+  height: 2px;
+  background: #2a1422;
+}
+
+/* Ribbed Washi Paper Body */
+.lantern-paper-body {
+  position: relative;
+  width: 38px;
+  height: 52px;
+  border-radius: 14px / 18px;
+  background: linear-gradient(180deg, #FFF0DC 0%, #FFAE4A 50%, #FF9626 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.lantern-light-core {
+  position: absolute;
+  width: 18px;
+  height: 24px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  filter: blur(5px);
+  box-shadow: 0 0 15px #FFE4A0;
+}
+
+.lantern-crest-emblem {
+  position: relative;
+  z-index: 2;
+  color: #7A2E3B;
+  opacity: 0.85;
+}
+
+.lantern-rib {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(60, 25, 35, 0.35);
+}
+
+.rib-1 { top: 25%; }
+.rib-2 { top: 50%; }
+.rib-3 { top: 75%; }
+
+.lantern-bottom-cap {
+  width: 26px;
+  height: 6px;
+  background: #180e18;
+  border-radius: 1px 1px 3px 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Silk Tassel */
+.lantern-silk-tassel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -1px;
+}
+
+.tassel-knot {
+  width: 5px;
+  height: 5px;
+  background: #C43854;
+  border-radius: 50%;
+}
+
+.tassel-fringe {
+  width: 2px;
+  height: 18px;
+  background: linear-gradient(180deg, #C43854 0%, #E26D85 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   FOREGROUND SAKURA BRANCH CANOPY & BOKEH DEPTH
+   ========================================================================== */
+
+.foreground-sakura-canopy-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 18;
+  overflow: hidden;
+}
+
+.canopy-branch-wrapper {
+  position: absolute;
+  pointer-events: none;
+  transition: transform 0.25s var(--ease-smooth);
+}
+
+.branch-top-left {
+  top: -15px;
+  left: -20px;
+  width: 480px;
+  max-width: 45vw;
+}
+
+.branch-top-right {
+  top: -15px;
+  right: -20px;
+  width: 500px;
+  max-width: 46vw;
+}
+
+.canopy-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.blossom-cluster-sway {
+  transform-origin: center top;
+}
+
+.sway-group-1 {
+  animation: branch-sway 7s ease-in-out infinite alternate;
+}
+
+.sway-group-2 {
+  animation: branch-sway 8.5s ease-in-out infinite alternate -2s;
+}
+
+.sway-group-3 {
+  animation: branch-sway 6s ease-in-out infinite alternate -4s;
+}
+
+@keyframes branch-sway {
+  0% { transform: rotate(0deg) translate(0, 0); }
+  50% { transform: rotate(1.2deg) translate(2px, 1px); }
+  100% { transform: rotate(-0.9deg) translate(-2px, -1px); }
+}
+
+/* Foreground Bokeh Blossoms (Depth of Field Blur) */
+.foreground-bokeh-cluster {
+  position: absolute;
+  pointer-events: none;
+  filter: blur(6px);
+  opacity: 0.75;
+}
+
+.bokeh-bottom-left {
+  bottom: 40px;
+  left: 20px;
+}
+
+.bokeh-bottom-right {
+  bottom: 50px;
+  right: 30px;
+}
+
+.bokeh-blossom {
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFDEEA 0%, #F9CADB 70%, transparent 100%);
+}
+
+.petal-1 { width: 34px; height: 34px; transform: translate(10px, 15px); }
+.petal-2 { width: 44px; height: 44px; transform: translate(35px, -10px); }
+.petal-3 { width: 28px; height: 28px; transform: translate(0px, 40px); }
+.petal-4 { width: 40px; height: 40px; transform: translate(-20px, 10px); }
+.petal-5 { width: 32px; height: 32px; transform: translate(15px, 30px); }
+
+/* Interactive Canvas Layer (Petals, Fireflies, Water Ripples) */
+.living-sakura-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 8;
+}
+
+/* Subtle Film Grain */
+.film-grain-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 25;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   CENTRAL BIRTHDAY TYPOGRAPHY OVERLAY (Upper-Middle Area)
+   ========================================================================== */
+
+.birthday-hero-overlay {
+  position: absolute;
+  top: clamp(35px, 11vh, 95px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 92%;
+  max-width: 820px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-smooth), transform 1.2s var(--ease-smooth);
+}
+
+.birthday-hero-overlay.is-revealed {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.birthday-typography-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* Single Main Birthday Heading */
+.hero-editorial-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3.6vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  color: #fff9f4;
+  text-transform: uppercase;
+  text-shadow: 0 0 25px rgba(249, 202, 219, 0.4),
+               0 2px 14px rgba(0, 0, 0, 0.95);
+  margin: 0;
+}
+
+/* Delicate Sakura Divider Accent */
+.hero-sakura-crest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--color-sakura-pink);
+  margin: 0.15rem 0;
+}
+
+.crest-line {
+  width: 45px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(249, 202, 219, 0.5), transparent);
+}
+
+.sakura-crest-svg {
+  filter: drop-shadow(0 0 6px rgba(249, 202, 219, 0.6));
+  animation: sakura-crest-pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes sakura-crest-pulse {
+  0% { transform: scale(0.95); opacity: 0.85; }
+  100% { transform: scale(1.08); opacity: 1; }
+}
+
+/* Single Supporting Subtitle */
+.hero-editorial-subtitle {
+  font-family: var(--font-serif);
+  font-size: clamp(0.88rem, 1.35vw, 1.1rem);
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(255, 245, 235, 0.92);
+  line-height: 1.6;
+  max-width: 560px;
+  margin: 0 auto;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   MINIMAL FLOATING MUSIC PLAYER (Matching Reference Image Bottom Center)
+   ========================================================================== */
+
+.reference-style-music-player {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: auto;
+  max-width: 580px;
+  transition: transform 0.3s var(--ease-smooth);
+}
+
+.reference-pill-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(18, 14, 28, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(249, 202, 219, 0.22);
+  border-radius: 999px;
+  padding: 6px 14px 6px 8px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.7), 0 0 20px rgba(244, 183, 205, 0.1);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.reference-style-music-player:hover .reference-pill-bar {
+  border-color: rgba(249, 202, 219, 0.4);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 28px rgba(249, 202, 219, 0.2);
+}
+
+/* Album Art Thumbnail (Round) */
+.player-album-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(249, 202, 219, 0.35);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #100c1e;
+}
+
+.player-album-thumb.thumb-rotating .thumb-image-circle {
+  animation: spin-thumb 12s linear infinite;
+}
+
+@keyframes spin-thumb {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.thumb-image-circle {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Track Info */
+.player-track-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 105px;
+  max-width: 135px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.player-track-info.is-changing {
+  opacity: 0.35;
+  transform: translateY(-2px);
+}
+
+.player-song-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-moon-ivory);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-song-artist {
+  font-size: 0.68rem;
+  color: rgba(255, 245, 232, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tiny Animated Equalizer */
+.mini-equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 14px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.eq-bar {
+  width: 2.5px;
+  background: var(--color-sakura-pink);
+  border-radius: 999px;
+  height: 3px;
+  opacity: 0.4;
+  transition: height 0.2s ease, opacity 0.2s ease;
+}
+
+.mini-equalizer.is-dancing .eq-bar {
+  opacity: 0.9;
+}
+
+.mini-equalizer.is-dancing .bar-1 {
+  animation: eq-bounce 0.75s ease-in-out infinite alternate;
+}
+
+.mini-equalizer.is-dancing .bar-2 {
+  animation: eq-bounce 0.55s ease-in-out infinite alternate 0.15s;
+}
+
+.mini-equalizer.is-dancing .bar-3 {
+  animation: eq-bounce 0.85s ease-in-out infinite alternate 0.3s;
+}
+
+.mini-equalizer.is-dancing .bar-4 {
+  animation: eq-bounce 0.62s ease-in-out infinite alternate 0.08s;
+}
+
+@keyframes eq-bounce {
+  0% { height: 3px; }
+  100% { height: 13px; }
+}
+
+/* Timeline Track & Timestamps */
+.player-timeline-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 140px;
+  flex: 1;
+}
+
+.timeline-interactive-track {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  background: rgba(249, 202, 219, 0.2);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+}
+
+.player-timeline-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.player-timeline-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-sakura-rose), var(--color-sakura-pink));
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.player-timestamps {
+  font-size: 0.72rem;
+  font-family: monospace;
+  color: rgba(255, 245, 232, 0.7);
+  white-space: nowrap;
+}
+
+/* Control Cluster */
+.player-control-cluster {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.btn-player-action {
+  background: none;
+  border: none;
+  color: rgba(255, 245, 232, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-player-action:hover {
+  color: #fff;
+  transform: scale(1.08);
+}
+
+/* Refresh Music button spinning animation */
+.btn-refresh.is-spinning {
+  animation: spin-refresh 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  color: var(--color-sakura-pink);
+}
+
+@keyframes spin-refresh {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Shuffle button active state */
+.btn-shuffle.active-shuffle {
+  color: var(--color-sakura-pink);
+  background: rgba(249, 202, 219, 0.15);
+  box-shadow: 0 0 8px rgba(249, 202, 219, 0.3);
+}
+
+/* Floating Toast Notice */
+.player-toast-notice {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14, 12, 26, 0.94);
+  border: 1px solid var(--color-border-pink);
+  color: var(--color-moon-ivory);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 15px rgba(249, 202, 219, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: toast-rise 0.25s var(--ease-smooth);
+  pointer-events: none;
+  z-index: 1002;
+}
+
+@keyframes toast-rise {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.btn-play-pause {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f4b7cd;
+  border: none;
+  color: #120e1e;
+  box-shadow: 0 0 14px rgba(244, 183, 205, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.btn-play-pause:hover, .btn-play-pause.active-playing {
+  background: #ffd5e4;
+  color: #0b0c1b;
+  box-shadow: 0 0 20px rgba(244, 183, 205, 0.8);
+  transform: scale(1.06);
+}
+
+.play-icon-offset {
+  margin-left: 1.5px;
+}
+
+/* Volume Slider Card */
+.player-volume-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.volume-slider-card {
+  position: absolute;
+  bottom: 42px;
+  right: -6px;
+  background: rgba(14, 12, 26, 0.95);
+  border: 1px solid var(--color-border-pink);
+  border-radius: 8px;
+  padding: 10px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.volume-slider-range {
+  width: 55px;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(249, 202, 219, 0.25);
+  border-radius: 999px;
+  outline: none;
+}
+
+.volume-slider-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-sakura-pink);
+  cursor: pointer;
+}
+
+/* Playlist Pill Action Button */
+.btn-player-spotify {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(244, 183, 205, 0.14);
+  border: 1px solid rgba(244, 183, 205, 0.38);
+  color: var(--color-sakura-pink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 2px;
+}
+
+.btn-player-spotify:hover, .btn-player-spotify.is-active {
+  background: var(--color-sakura-pink);
+  color: #0b0c1b;
+  border-color: var(--color-sakura-pink);
+  box-shadow: 0 0 12px rgba(244, 183, 205, 0.45);
+}
+
+/* Playlist Popup Modal */
+.player-spotify-modal {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  max-width: 94vw;
+  background: rgba(14, 12, 26, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--color-border-pink);
+  border-radius: 18px;
+  padding: 14px 12px 10px 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(232, 150, 184, 0.2);
+  animation: modal-rise 0.25s var(--ease-smooth);
+  z-index: 1001;
+}
+
+@keyframes modal-rise {
+  from { transform: translateX(-50%) translateY(12px) scale(0.96); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+.spotify-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.spotify-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spotify-indicator-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-sakura-pink);
+  box-shadow: 0 0 8px rgba(244, 183, 205, 0.6);
+}
+
+.spotify-indicator-dot.dot-active {
+  background: var(--color-sakura-pink);
+  box-shadow: 0 0 10px rgba(244, 183, 205, 0.9);
+  animation: pulse-dot 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+.spotify-modal-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-moon-ivory);
+  letter-spacing: 0.01em;
+}
+
+.spotify-modal-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-spotify-close {
+  background: none;
+  border: none;
+  color: rgba(255, 245, 232, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-spotify-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Playlist Search Box */
+.playlist-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(249, 202, 219, 0.2);
+  border-radius: 10px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.playlist-search-box:focus-within {
+  border-color: rgba(244, 183, 205, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.playlist-search-icon {
+  color: rgba(255, 245, 232, 0.45);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.playlist-search-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--color-moon-ivory);
+  font-size: 0.78rem;
+  width: 100%;
+}
+
+.playlist-search-input::placeholder {
+  color: rgba(255, 245, 232, 0.4);
+}
+
+.btn-search-clear {
+  background: none;
+  border: none;
+  color: rgba(255, 245, 232, 0.5);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.btn-search-clear:hover {
+  color: #fff;
+}
+
+/* Playlist Tracks Scrollable Area */
+.playlist-tracks-scroll {
+  max-height: 270px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 2px;
+}
+
+.playlist-tracks-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.playlist-tracks-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.playlist-tracks-scroll::-webkit-scrollbar-thumb {
+  background: rgba(244, 183, 205, 0.3);
+  border-radius: 4px;
+}
+
+.playlist-tracks-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 183, 205, 0.5);
+}
+
+/* Track Row */
+.playlist-track-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.playlist-track-row:hover {
+  background: rgba(249, 202, 219, 0.08);
+  border-color: rgba(249, 202, 219, 0.2);
+}
+
+.playlist-track-row.is-active {
+  background: rgba(244, 183, 205, 0.16);
+  border-color: rgba(244, 183, 205, 0.4);
+}
+
+.track-left-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.track-index-num {
+  font-size: 0.72rem;
+  color: rgba(255, 245, 232, 0.45);
+  font-family: monospace;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.playlist-track-row.is-active .track-index-num {
+  color: var(--color-sakura-pink);
+  font-weight: 700;
+}
+
+/* Mini playing eq dots */
+.track-playing-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+
+.track-playing-eq .eq-dot {
+  width: 2.5px;
+  background: var(--color-sakura-pink);
+  border-radius: 999px;
+}
+
+.track-playing-eq .dot-1 {
+  height: 8px;
+  animation: eq-bounce 0.6s infinite alternate;
+}
+
+.track-playing-eq .dot-2 {
+  height: 10px;
+  animation: eq-bounce 0.45s infinite alternate 0.1s;
+}
+
+.track-playing-eq .dot-3 {
+  height: 6px;
+  animation: eq-bounce 0.7s infinite alternate 0.2s;
+}
+
+.track-name-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.track-row-title {
+  font-size: 0.79rem;
+  font-weight: 600;
+  color: var(--color-moon-ivory);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-track-row.is-active .track-row-title {
+  color: var(--color-sakura-pink);
+}
+
+.track-row-artist {
+  font-size: 0.67rem;
+  color: rgba(255, 245, 232, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-row-duration {
+  font-size: 0.70rem;
+  font-family: monospace;
+  color: rgba(255, 245, 232, 0.55);
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.playlist-empty-state {
+  padding: 24px;
+  text-align: center;
+  font-size: 0.76rem;
+  color: rgba(255, 245, 232, 0.5);
+}
+
+.spotify-modal-footer {
+  margin-top: 8px;
+  padding: 4px 4px 0 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spotify-footer-hint {
+  font-size: 0.68rem;
+  color: rgba(255, 245, 232, 0.55);
+  font-style: italic;
+  display: block;
+  text-align: center;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .scenery-base-image {
+    object-position: center 40%;
+  }
+
+  .birthday-hero-overlay {
+    top: 10%;
+    width: 94%;
+  }
+
+  .title-line-1 {
+    font-size: 1.85rem;
+  }
+
+  .title-line-2 {
+    font-size: 2.2rem;
+  }
+
+  .hero-editorial-subtitle {
+    font-size: 0.92rem;
+  }
+
+  .reference-style-music-player {
+    bottom: 18px;
+    width: calc(100% - 24px);
+    max-width: 420px;
+  }
+
+  .reference-pill-bar {
+    padding: 6px 12px 6px 8px;
+    gap: 8px;
+  }
+
+  .player-track-info {
+    min-width: 80px;
+    max-width: 100px;
+  }
+
+  .player-song-title {
+    font-size: 0.74rem;
+  }
+
+  .player-song-artist {
+    font-size: 0.62rem;
+  }
+
+  .player-timestamps {
+    display: none;
+  }
+
+  .player-control-cluster {
+    gap: 3px;
+  }
+
+  .btn-player-spotify .spotify-label {
+    display: none;
+  }
+
+  .btn-player-spotify {
+    padding: 5px;
+    border-radius: 50%;
+  }
+
+  .mini-equalizer {
+    display: none;
+  }
+}
