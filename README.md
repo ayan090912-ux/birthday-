@@ -38,7 +38,29 @@ Open [http://localhost:3000](http://localhost:3000) to view the experience.
 npm run build
 ```
 
-## 🎵 Adding More Music
+## 🎵 Adding More Music (Fully Automatic)
 
-1. Place your `.mp3` audio files into `public/music/`.
-2. Add the track metadata to `src/data/content.ts` in `localPlaylistTracks`.
+You do **not** need to edit any code or config files. The system automatically scans and syncs songs for both local development and the live website.
+
+### Automatic Method (Easiest)
+1. Drop your audio file (`.mp3`, `.wav`, `.ogg`, `.m4a`, `.aac`, or `.flac`) into the **`public/music/`** folder.
+2. The background macOS service (`com.anshika.musicsync`) automatically:
+   - Detects the new song.
+   - Extracts title, artist, and embedded album artwork.
+   - Uploads the audio and album cover to the AWS S3 Music Vault.
+   - Updates `public/music-manifest.json` on S3 and locally.
+   - The song is immediately playable on both localhost and the live website!
+
+### Manual Commands (If Needed)
+- **Sync existing songs to S3 cloud vault:**
+  ```bash
+  npm run sync-music:once
+  ```
+- **Run local music scanner only:**
+  ```bash
+  npm run scan-music
+  ```
+- **Re-deploy entire website to AWS Amplify:**
+  ```bash
+  npm run deploy:aws
+  ```
